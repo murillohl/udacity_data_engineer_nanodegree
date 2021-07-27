@@ -1,21 +1,20 @@
-# Project: Data Modeling with Postgres
+# Project: Data Warehouse
 
 ## Introduction
-A startup called Sparkify wants to analyze the data they've been collecting on songs and user activity on their new music streaming app. 
-The analytics team is particularly interested in understanding what songs users are listening to. 
-Currently, they don't have an easy way to query their data, which resides in a directory of JSON logs on user activity on the app, 
-as well as a directory with JSON metadata on the songs in their app.
+A music streaming startup, Sparkify, has grown their user base and song database and want to move their processes and data onto the cloud. Their data resides in S3, in a directory of JSON logs on user activity on the app, as well as a directory with JSON metadata on the songs in their app.
 
-They'd like a data engineer to create a Postgres database with tables designed to optimize queries on song play analysis, and bring you on the project. 
-Your role is to create a database schema and ETL pipeline for this analysis. 
-You'll be able to test your database and ETL pipeline by running queries given to you by the analytics team from Sparkify and compare your results with their expected results.
+As their data engineer, you are tasked with building an ETL pipeline that extracts their data from S3, stages them in Redshift, and transforms data into a set of dimensional tables for their analytics team to continue finding insights in what songs their users are listening to. You'll be able to test your database and ETL pipeline by running queries given to you by the analytics team from Sparkify and compare your results with their expected results.
 
 ## Project Description
-In this project, you'll apply what you've learned on data modeling with Postgres and build an ETL pipeline using Python. 
-To complete the project, you will need to define fact and dimension tables for a star schema for a particular analytic focus, 
-and write an ETL pipeline that transfers data from files in two local directories into these tables in Postgres using Python and SQL.
+In this project, we'll apply what you've learned on data warehouses and AWS to build an ETL pipeline for a database hosted on Redshift. We will need to load data from S3 to staging tables on Redshift and execute SQL statements that create the analytics tables from these staging tables.
 
 ## Datasets Used
+
+We'll be working with two datasets that reside in S3. Here are the S3 links for each:
+
+Song data: s3://udacity-dend/song_data
+Log data: s3://udacity-dend/log_data
+Log data json path: s3://udacity-dend/log_json_path.json
 
 ### Song Dataset
 The first dataset is a subset of real data from the Million Song Dataset. 
@@ -44,18 +43,61 @@ And below is an example of what the data in a log file, 2018-11-12-events.json, 
 
 ![image](https://user-images.githubusercontent.com/21292638/125691983-b0cd0761-b3d5-4e4e-8bbc-5899a8196438.png)
 
-## Schema for Song Play Analysis
-Using the song and log datasets, you'll need to create a star schema optimized for queries on song play analysis. This includes the following tables.
 
-Our fact table is going to be the Table Songplays wich are records in log data associated with song plays i.e. records with page NextSong
+## Staging Tables
+
+First we create two stagings tables to insert all the JSON data in redshift, then we use this tables to load the data in the format that we need for the Star Schema that we modeled.
+
+**Table staging_events**
+
+| COLUMN  	| TYPE  	| CONSTRAINT  	|
+|---	|---	|---	|	
+|   artist	| TEXT  	|   	| 
+|   auth	|   TEXT	|   	| 
+|   firstName	|   TEXT	|   	| 
+|   gender	|   TEXT |   	| 
+|   itemInSession	|   INT	|   	| 
+|   lastName	|   TEXT	|   	| 
+|   length	|   NUMERIC	|   	| 
+|   location	|   TEXT	|   	| 
+|   method	|   TEXT	|   	|
+|   page	|   TEXT	|   	|
+|   registration	|   NUMERIC	|   	|
+|   sessionId	|   INT	|   	|
+|   song	|   TEXT	|   	|
+|   status	|   INT	|   	|
+|   ts	|   TIMESTAMP	|   	|
+|   userAgent	|   TEXT	|   	|
+|   userId	|   INT	|   	|
+
+
+**Table staging_songs**
+
+| COLUMN  	| TYPE  	| CONSTRAINT  	|
+|---	|---	|---	|	
+|   num_songs	| INT  	|   	| 
+|   artist_id	|   TEXT	|   	| 
+|   artist_latitude	|   NUMERIC	|   	| 
+|   artist_longitude	|   NUMERIC |   	| 
+|   artist_name	|   TEXT	|   	| 
+|   song_id	|   TEXT	|   	| 
+|   title	|   TEXT	|   	| 
+|   duration	|   NUMERIC	|   	| 
+|   year	|   INT	|   	|
+
+
+## Schema for Song Play Analysis
+Using the song and log datasets, we'll need to create a star schema optimized for queries on song play analysis. This includes the following tables.
+
+Our fact table is going to be the Table Songplays wich are records in log data associated with song plays i.e. records with page NextSong.
 
 **Table songplays**
 
 | COLUMN  	| TYPE  	| CONSTRAINT  	|
 |---	|---	|---	|	
-|   songplay_id	| SERIAL  	|   PRIMARY KEY	| 
-|   start_time	|   TIMESTAMP	|   	| 
-|   user_id	|   INT	|   	| 
+|   songplay_id	| INT  	|   IDENTITY(0,1) PRIMARY KEY	| 
+|   start_time	|   TIMESTAMP	|  NOT NULL SORTKEY 	| 
+|   user_id	|   INT	|  NOT NULL DISTKEY 	| 
 |   level	|   TEXT |   	| 
 |   song_id	|   TEXT	|   	| 
 |   artist_id	|   TEXT	|   	| 
@@ -69,7 +111,7 @@ Them we create one table for each dimension table for the **Fact Table**
  
  | COLUMN  	| TYPE  	| CONSTRAINT  	|
 |---	|---	|---	|	
-|   user_id	| SERIAL  	|   PRIMARY KEY	| 
+|   user_id	| INT  	|   IDENTITY(0,1) PRIMARY KEY DISTKEY	| 
 |   first_name	|   TEXT	|  	| 
 |   last_name	|   TEXT	|  	| 
 |   gender	|   TEXT |   	| 
@@ -79,7 +121,7 @@ Them we create one table for each dimension table for the **Fact Table**
 
  | COLUMN  	| TYPE  	| CONSTRAINT   	|
 |---	|---	|---	|	
-|   song_id	| TEXT  	|   PRIMARY KEY	| 
+|   song_id	| TEXT  	|   NOT NULL PRIMARY KEY	| 
 |   title	|   TEXT	|  	| 
 |   artist_id	|   TEXT	|   	| 
 |   year	|   INT |   	| 
@@ -89,7 +131,7 @@ Them we create one table for each dimension table for the **Fact Table**
 
  | COLUMN  	| TYPE  	| CONSTRAINT   	|
 |---	|---	|---	|	
-|   artist_id	| TEXT  	|   PRIMARY KEY	| 
+|   artist_id	| TEXT  	|   NOT NULL PRIMARY KEY	| 
 |   name	|   TEXT	|   	| 
 |   location	|   TEXT	|   	| 
 |   latitude	|   NUMERIC	|   	| 
@@ -99,7 +141,7 @@ Them we create one table for each dimension table for the **Fact Table**
  
  | COLUMN  	| TYPE  	| CONSTRAINT   	|
 |---	|---	|---	|	
-|   start_time	| TIMESTAMP  	|   PRIMARY KEY	| 
+|   start_time	| TIMESTAMP  	|   NOT NULL PRIMARY KEY SORTKEY	| 
 |   hour	|   INT	|   	| 
 |   day	|   INT	|   	| 
 |   week	|   INT	|   	| 
@@ -110,23 +152,58 @@ Them we create one table for each dimension table for the **Fact Table**
 ## Project Template
 
 Files used on the project:
-1. **data** folder where all needed data in jsons forms are stored.
+1. **create_tables.py** drops and creates tables. You run this file to reset your tables before each time you run your ETL scripts.
 2. **sql_queries.py** contains all sql queries, and is imported into the files bellow.
-3. **create_tables.py** drops and creates tables. You run this file to reset your tables before each time you run your ETL scripts.
-4. **test.ipynb** displays the first few rows of each table to let you check your database.
-5. **etl.ipynb** python notebook to do Experimental ETL in single rows of the dataset 
-6. **etl.py** final ETL file to execute and process all data from the files 
+3. **etl.py** final ETL file to execute and process all ingest and transformations in SQL. 
+4. **IaC.ipynb** python notebook to create the resources in AWS (IAM, Redshift Cluster, Security Groups) using Infrastructure as Code.
+5. We also need a **dhw.cfg** file that is not in this repository containing the following variables to reference the s3 buckets and the variables of the redshift cluster:
 
+```
+[CLUSTER]
+HOST=
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+DB_PORT=5439
+
+[IAM_ROLE]
+ARN=
+
+[S3]
+LOG_DATA=s3://udacity-dend/log_data
+LOG_JSONPATH=s3://udacity-dend/log_json_path.json
+SONG_DATA=s3://udacity-dend/song_data
+
+[AWS]
+KEY=
+SECRET=
+
+[DWH]
+DWH_IAM_ROLE_NAME      = 
+DWH_CLUSTER_TYPE       = multi-node
+DWH_NODE_TYPE          = dc2.large
+DWH_NUM_NODES          = 4
+DWH_DB                 = 
+DWH_CLUSTER_IDENTIFIER = 
+DWH_DB_USER            = 
+DWH_DB_PASSWORD        = 
+DWH_PORT               = 5439
+```
 ## Steps to run the Project
 
-1º Create de tables in the database executing the create_tables.py file running the command in the terminal:
- ```
+1º Setup the dwh.cfg file in the root folder.
+
+2º Execute the following steps in the IaC jupyter notebook to create the AWS resources.
+
+3º Create the staging tables in the redshift cluster executing the create_tables.py file running the command in the terminal:
+```
 python create_tables.py
 ```
 
-2º Run the ETL python file etl.py next:
- ```
+4º Run the ETL python file etl.py next:
+```
 python etl.py
 ```
 
-3º Use the test.ipynb Jupyter Notebook to verify that all tables were created and if certify that the data was inserted
+5º Execute some queries in Query Editor in AWS Redshift console to test the inserted rows, like
+
