@@ -205,5 +205,9 @@ python create_tables.py
 python etl.py
 ```
 
-5º Execute some queries in Query Editor in AWS Redshift console to test the inserted rows, like
+5º Execute some queries in Query Editor in AWS Redshift console to test the inserted rows, like:
+
+`SELECT * from time limit 10`
+
+`SELECT count(user_id) from users`
 
