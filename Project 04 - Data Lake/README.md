@@ -49,7 +49,7 @@ Using the song and log datasets as the source data, we'll need to create a star 
 Our fact table is going to be the Table Songplays wich are records in log data associated with song plays i.e. records with page NextSong.
 
 **Table songplays** - Partition By year, month
-
+```
  |-- start_time: timestamp (nullable = true)
  |-- userId: string (nullable = true)
  |-- level: string (nullable = true)
@@ -59,40 +59,40 @@ Our fact table is going to be the Table Songplays wich are records in log data a
  |-- song_id: string (nullable = true)
  |-- artist_id: string (nullable = true)
  |-- songplay_id: long (nullable = false)
-
+```
 
 Them we create one table for each dimension table for the **Fact Table**
  
  **Table users** 
- 
+ ```
  |-- firstName: string (nullable = true)
  |-- lastName: string (nullable = true)
  |-- gender: string (nullable = true)
  |-- level: string (nullable = true)
  |-- userId: string (nullable = true)
-
+```
 
 **Table songs** - Partition By year, artist_id
-
+```
  |-- song_id: string (nullable = true)
  |-- title: string (nullable = true)
  |-- artist_id: string (nullable = true)
  |-- year: long (nullable = true)
  |-- duration: double (nullable = true)
-
+```
 
 **Table artists**
 
-
+```
  |-- artist_id: string (nullable = true)
  |-- artist_name: string (nullable = true)
  |-- artist_location: string (nullable = true)
  |-- artist_latitude: double (nullable = true)
  |-- artist_longitude: double (nullable = true)
-
+```
 
 **Table time** - Partition By year, month
- 
+ ```
  |-- start_time: timestamp (nullable = true)
  |-- hour: integer (nullable = true)
  |-- day: integer (nullable = true)
@@ -100,7 +100,7 @@ Them we create one table for each dimension table for the **Fact Table**
  |-- month: integer (nullable = true)
  |-- year: integer (nullable = true)
  |-- weekday: integer (nullable = true)
-
+```
 
 ## Project Template
 
@@ -126,10 +126,3 @@ SECRET=
 ```
 python etl.py
 ```
-
-5º Execute some queries in Query Editor in AWS Redshift console to test the inserted rows, like:
-
-`SELECT * from time limit 10`
-
-`SELECT count(user_id) from users`
-
