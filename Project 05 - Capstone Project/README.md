@@ -107,7 +107,7 @@ python etl.py
 
 ### Writeups 
 
-* How to scale the project to 100x data: Since we are using spark in all process steps, we will just need to adjust the clusters configuration power to deal better with this. In terms of Storage, we dont need to worry about also because using S3 and parquet files the data persisted can scale to lots of terabytes without any problems.
+* How to scale the project to 100x data: Since we are using spark in all process steps, we will just need to adjust the clusters configuration power to deal better with this and choose the right columns to partition the Data to speedup the parallel processing, like times columns (year, month). In terms of Storage, we dont need to worry about also because using S3 and parquet files the data persisted can scale to lots of terabytes without any problems.
 
 * Pipeline running on 7AM: We would need to use a scheduler to run the ETL. To this we can use Airflow, or some solutions from AWS like Glue Jobs scheduleds, AWS Batch or Step Functions.
 
