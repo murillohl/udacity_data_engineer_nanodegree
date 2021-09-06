@@ -120,9 +120,9 @@ After the ETL run's, we will have the two Analytics Table with the following str
  **Table players_statistics_per_match** - Partition By create_match_year, create_match_month
  ~~~~
  |-- participants_id: integer (nullable = true) - PRIMARY KEY
- |-- matchid: integer (nullable = true)
+ |-- matchid: integer (nullable = true) - FOREIGN KEY
  |-- player: integer (nullable = true)
- |-- championid: integer (nullable = true)
+ |-- championid: integer (nullable = true) - FOREIGN KEY
  |-- ss1: integer (nullable = true)
  |-- ss2: integer (nullable = true)
  |-- role: string (nullable = true)
@@ -188,8 +188,8 @@ After the ETL run's, we will have the two Analytics Table with the following str
  |-- match_id: integer (nullable = true)
  |-- gameid: string (nullable = true)
  |-- platformid: string (nullable = true)
- |-- queueid: integer (nullable = true)
- |-- seasonid: integer (nullable = true)
+ |-- queueid: integer (nullable = true) - FOREIGN KEY
+ |-- seasonid: integer (nullable = true) - FOREIGN KEY
  |-- duration: double (nullable = true)
  |-- creation: double (nullable = true)
  |-- version: string (nullable = true)
@@ -236,8 +236,8 @@ After the ETL run's, we will have the two Analytics Table with the following str
  |-- total_wardskilled: long (nullable = true)
  |-- gameid: string (nullable = true)
  |-- platformid: string (nullable = true)
- |-- queueid: integer (nullable = true)
- |-- seasonid: integer (nullable = true)
+ |-- queueid: integer (nullable = true) - FOREIGN KEY
+ |-- seasonid: integer (nullable = true) - FOREIGN KEY
  |-- duration: double (nullable = true)
  |-- creation: double (nullable = true)
  |-- version: string (nullable = true)
