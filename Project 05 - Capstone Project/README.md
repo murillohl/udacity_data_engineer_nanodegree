@@ -1,7 +1,7 @@
 # Data Engineering Capstone Project
 
 ## Introduction
-League of Legends is a team-based strategy game where two teams of five powerful champions face off to destroy the other’s base. We can choose over 140 different champions. The focus is take down towers as you battle and destroy the enemy’s Nexus first to win the game. The MOBA is currently the most played online game with a community of over 30 million people per day. This project consist in utilize data about Ranked matches over all regions available in Kaggle and using the Riot API Portal to transform and manipulate this data, resulting in analytics tables that can be easily explore to run tests, build models or get insights about Ranked Matches.
+League of Legends is a team-based strategy game where two teams of five powerful champions face off to destroy the other’s base. We can choose over 140 different champions. The focus is take down towers as you battle and destroy the enemy’s Nexus first to win the game. The MOBA is currently the most played online game with a community of over 30 million people per day. This project consist in utilize data about Ranked matches over all regions available in Kaggle and using the Riot API Portal to transform and manipulate this data, resulting in analytics tables that can be easily explore to run tests, build models or get insights about Ranked Matches, like the most/less played champions in a season, or the higher/lower win rate champion.
 
 ## Project Description
 In this project, we'll use a CSV Datasets available in Kaggle with over 1.8million rows about ranked matches info (our Fact Table), get some Dimensions tables from Riot API Developer in json with pandas Python library, transform all this data in parquet files stored in S3, then build a ETL that make some manipulation and cleaning data using Spark, and stores two analytics tables also in S3, one containing especific data about the players from the matches, and another containing aggregations data info about the entire match.
@@ -42,264 +42,14 @@ The stats dataset is a table with real data getting from the Riot API developer 
 
 This will be our fact table that we are going to use to create our two Analytics Table. 
 
- **Table stats**
-~~~~
- |-- id: integer (nullable = true)
- |-- win: integer (nullable = true)
- |-- item1: integer (nullable = true)
- |-- item2: integer (nullable = true)
- |-- item3: integer (nullable = true)
- |-- item4: integer (nullable = true)
- |-- item5: integer (nullable = true)
- |-- item6: integer (nullable = true)
- |-- trinket: integer (nullable = true)
- |-- kills: integer (nullable = true)
- |-- deaths: integer (nullable = true)
- |-- assists: integer (nullable = true)
- |-- largestkillingspree: integer (nullable = true)
- |-- largestmultikill: integer (nullable = true)
- |-- killingsprees: integer (nullable = true)
- |-- longesttimespentliving: integer (nullable = true)
- |-- doublekills: integer (nullable = true)
- |-- triplekills: integer (nullable = true)
- |-- quadrakills: integer (nullable = true)
- |-- pentakills: integer (nullable = true)
- |-- legendarykills: integer (nullable = true)
- |-- totdmgdealt: integer (nullable = true)
- |-- magicdmgdealt: integer (nullable = true)
- |-- physicaldmgdealt: integer (nullable = true)
- |-- truedmgdealt: integer (nullable = true)
- |-- largestcrit: integer (nullable = true)
- |-- totdmgtochamp: integer (nullable = true)
- |-- magicdmgtochamp: integer (nullable = true)
- |-- physdmgtochamp: integer (nullable = true)
- |-- truedmgtochamp: integer (nullable = true)
- |-- totheal: integer (nullable = true)
- |-- totunitshealed: integer (nullable = true)
- |-- dmgselfmit: integer (nullable = true)
- |-- dmgtoobj: integer (nullable = true)
- |-- dmgtoturrets: integer (nullable = true)
- |-- visionscore: integer (nullable = true)
- |-- timecc: integer (nullable = true)
- |-- totdmgtaken: integer (nullable = true)
- |-- magicdmgtaken: integer (nullable = true)
- |-- physdmgtaken: integer (nullable = true)
- |-- truedmgtaken: integer (nullable = true)
- |-- goldearned: integer (nullable = true)
- |-- goldspent: integer (nullable = true)
- |-- turretkills: integer (nullable = true)
- |-- inhibkills: integer (nullable = true)
- |-- totminionskilled: integer (nullable = true)
- |-- neutralminionskilled: integer (nullable = true)
- |-- ownjunglekills: integer (nullable = true)
- |-- enemyjunglekills: integer (nullable = true)
- |-- totcctimedealt: integer (nullable = true)
- |-- champlvl: integer (nullable = true)
- |-- pinksbought: integer (nullable = true)
- |-- wardsbought: string (nullable = true)
- |-- wardsplaced: integer (nullable = true)
- |-- wardskilled: integer (nullable = true)
- |-- firstblood: integer (nullable = true)
- ~~~~
-Then we will have the following dimensions tables (we can get more, but for this project will be using just this ones) for the **Fact Table**.
-
- **Table champs**
- ~~~~
- |-- name: string (nullable = true)
- |-- id: integer (nullable = true)
- ~~~~
- **Table participants**
- ~~~~
- |-- id: integer (nullable = true)
- |-- matchid: integer (nullable = true)
- |-- player: integer (nullable = true)
- |-- championid: integer (nullable = true)
- |-- ss1: integer (nullable = true)
- |-- ss2: integer (nullable = true)
- |-- role: string (nullable = true)
- |-- position: string (nullable = true)
- ~~~~
- **Table matches**
- ~~~~
- |-- id: integer (nullable = true)
- |-- gameid: string (nullable = true)
- |-- platformid: string (nullable = true)
- |-- queueid: integer (nullable = true)
- |-- seasonid: integer (nullable = true)
- |-- duration: double (nullable = true)
- |-- creation: double (nullable = true)
- |-- version: string (nullable = true)
- ~~~~
- **Table teamstats**
- ~~~~
- |-- matchid: integer (nullable = true)
- |-- teamid: integer (nullable = true)
- |-- firstblood: integer (nullable = true)
- |-- firsttower: integer (nullable = true)
- |-- firstinhib: integer (nullable = true)
- |-- firstbaron: integer (nullable = true)
- |-- firstdragon: integer (nullable = true)
- |-- firstharry: integer (nullable = true)
- |-- towerkills: integer (nullable = true)
- |-- inhibkills: integer (nullable = true)
- |-- baronkills: integer (nullable = true)
- |-- dragonkills: integer (nullable = true)
- |-- harrykills: integer (nullable = true)
- ~~~~
- **Table queues**
- ~~~~
- |-- description: string (nullable = true)
- |-- map: string (nullable = true)
- |-- notes: string (nullable = true)
- |-- queueId: integer (nullable = true)
-~~~~
 After the ETL run's, we will have the two Analytics Table with the following structure:
 
- **Table players_statistics_per_match** - Partition By create_match_year, create_match_month
- ~~~~
- |-- participants_id: integer (nullable = true)
- |-- matchid: integer (nullable = true)
- |-- player: integer (nullable = true)
- |-- championid: integer (nullable = true)
- |-- ss1: integer (nullable = true)
- |-- ss2: integer (nullable = true)
- |-- role: string (nullable = true)
- |-- position: string (nullable = true)
- |-- stats_id: integer (nullable = true)
- |-- win: integer (nullable = true)
- |-- item1: integer (nullable = true)
- |-- item2: integer (nullable = true)
- |-- item3: integer (nullable = true)
- |-- item4: integer (nullable = true)
- |-- item5: integer (nullable = true)
- |-- item6: integer (nullable = true)
- |-- trinket: integer (nullable = true)
- |-- kills: integer (nullable = true)
- |-- deaths: integer (nullable = true)
- |-- assists: integer (nullable = true)
- |-- largestkillingspree: integer (nullable = true)
- |-- largestmultikill: integer (nullable = true)
- |-- killingsprees: integer (nullable = true)
- |-- longesttimespentliving: integer (nullable = true)
- |-- doublekills: integer (nullable = true)
- |-- triplekills: integer (nullable = true)
- |-- quadrakills: integer (nullable = true)
- |-- pentakills: integer (nullable = true)
- |-- legendarykills: integer (nullable = true)
- |-- totdmgdealt: integer (nullable = true)
- |-- magicdmgdealt: integer (nullable = true)
- |-- physicaldmgdealt: integer (nullable = true)
- |-- truedmgdealt: integer (nullable = true)
- |-- largestcrit: integer (nullable = true)
- |-- totdmgtochamp: integer (nullable = true)
- |-- magicdmgtochamp: integer (nullable = true)
- |-- physdmgtochamp: integer (nullable = true)
- |-- truedmgtochamp: integer (nullable = true)
- |-- totheal: integer (nullable = true)
- |-- totunitshealed: integer (nullable = true)
- |-- dmgselfmit: integer (nullable = true)
- |-- dmgtoobj: integer (nullable = true)
- |-- dmgtoturrets: integer (nullable = true)
- |-- visionscore: integer (nullable = true)
- |-- timecc: integer (nullable = true)
- |-- totdmgtaken: integer (nullable = true)
- |-- magicdmgtaken: integer (nullable = true)
- |-- physdmgtaken: integer (nullable = true)
- |-- truedmgtaken: integer (nullable = true)
- |-- goldearned: integer (nullable = true)
- |-- goldspent: integer (nullable = true)
- |-- turretkills: integer (nullable = true)
- |-- inhibkills: integer (nullable = true)
- |-- totminionskilled: integer (nullable = true)
- |-- neutralminionskilled: integer (nullable = true)
- |-- ownjunglekills: integer (nullable = true)
- |-- enemyjunglekills: integer (nullable = true)
- |-- totcctimedealt: integer (nullable = true)
- |-- champlvl: integer (nullable = true)
- |-- pinksbought: integer (nullable = true)
- |-- wardsbought: string (nullable = true)
- |-- wardsplaced: integer (nullable = true)
- |-- wardskilled: integer (nullable = true)
- |-- firstblood: integer (nullable = true)
- |-- name: string (nullable = true)
- |-- champs_id: integer (nullable = true)
- |-- match_id: integer (nullable = true)
- |-- gameid: string (nullable = true)
- |-- platformid: string (nullable = true)
- |-- queueid: integer (nullable = true)
- |-- seasonid: integer (nullable = true)
- |-- duration: double (nullable = true)
- |-- creation: double (nullable = true)
- |-- version: string (nullable = true)
- |-- create_match_date: timestamp (nullable = true)
- |-- create_match_hour: integer (nullable = true)
- |-- create_match_day: integer (nullable = true)
- |-- create_match_month: integer (nullable = true)
- |-- create_match_year: integer (nullable = true)
- ~~~~
- **Table teams_statistics_per_match** - Partition By create_match_year, create_match_month
- ~~~~
- |-- team_side: string (nullable = true)
- |-- matchid: integer (nullable = true)
- |-- win: integer (nullable = true)
- |-- total_kills: long (nullable = true)
- |-- total_deaths: long (nullable = true)
- |-- total_assists: long (nullable = true)
- |-- total_doublekills: long (nullable = true)
- |-- total_triplekills: long (nullable = true)
- |-- total_quadrakills: long (nullable = true)
- |-- total_pentakills: long (nullable = true)
- |-- total_totdmgdealt: long (nullable = true)
- |-- total_magicdmgdealt: long (nullable = true)
- |-- total_physicaldmgdealt: long (nullable = true)
- |-- total_truedmgdealt: long (nullable = true)
- |-- total_largestcrit: long (nullable = true)
- |-- total_totdmgtochamp: long (nullable = true)
- |-- total_magicdmgtochamp: long (nullable = true)
- |-- total_physdmgtochamp: long (nullable = true)
- |-- total_truedmgtochamp: long (nullable = true)
- |-- total_totheal: long (nullable = true)
- |-- total_totunitshealed: long (nullable = true)
- |-- total_dmgselfmit: long (nullable = true)
- |-- total_dmgtoobj: long (nullable = true)
- |-- total_dmgtoturrets: long (nullable = true)
- |-- total_visionscore: long (nullable = true)
- |-- total_goldearned: long (nullable = true)
- |-- total_goldspent: long (nullable = true)
- |-- total_totminionskilled: long (nullable = true)
- |-- total_neutralminionskilled: long (nullable = true)
- |-- total_pinksbought: long (nullable = true)
- |-- total_wardsbought: double (nullable = true)
- |-- total_wardsplaced: long (nullable = true)
- |-- total_wardskilled: long (nullable = true)
- |-- gameid: string (nullable = true)
- |-- platformid: string (nullable = true)
- |-- queueid: integer (nullable = true)
- |-- seasonid: integer (nullable = true)
- |-- duration: double (nullable = true)
- |-- creation: double (nullable = true)
- |-- version: string (nullable = true)
- |-- description: string (nullable = true)
- |-- map: string (nullable = true)
- |-- notes: string (nullable = true)
- |-- team_stats_match_id: integer (nullable = true)
- |-- firstblood: integer (nullable = true)
- |-- firsttower: integer (nullable = true)
- |-- firstinhib: integer (nullable = true)
- |-- firstbaron: integer (nullable = true)
- |-- firstdragon: integer (nullable = true)
- |-- firstharry: integer (nullable = true)
- |-- towerkills: integer (nullable = true)
- |-- inhibkills: integer (nullable = true)
- |-- baronkills: integer (nullable = true)
- |-- dragonkills: integer (nullable = true)
- |-- harrykills: integer (nullable = true)
- |-- create_match_date: timestamp (nullable = true)
- |-- create_match_hour: integer (nullable = true)
- |-- create_match_day: integer (nullable = true)
- |-- create_match_month: integer (nullable = true)
- |-- create_match_year: integer (nullable = true)
-~~~~
+![image](https://user-images.githubusercontent.com/21292638/132261428-b5d7ff98-2dd5-4459-b1d6-303e597bd013.png)
+
+The first is the players_statistics_per_match in the picture, and the second is using the same Schema but with some aggregation methods to gather info about the role team and get some insights in Team Side level, like win rate of Blue Side, firstblood rate of Red Side.
+
+The full *Data Dictionary* is in the DataDictionary.md file
+
 ## Tools 
 
 * We first used Pandas and Requests to get JSON data from Riot API and store as csv.
@@ -320,10 +70,11 @@ Files used on the project:
 1. **data_source** folder with all csv data from Kaggle and Riot Developer Portal API.
 2. **schemas.py** python file returning a dictionary mapping the parquet DataTypes schema for each table.
 3. **json_collect_data.ipynb** python notebook used to collect dimensions table in json and store as csv in our data_source folder.
-4. **explore_data.ipynb** python notebook used to model the etl pipeline, explore the data and find oportunities with the data.
+4. **explore_data.ipynb** python notebook used to model the etl pipeline, explore the data and find oportunities and insights with the data.
 5. **etl.py** final ETL file to execute and process all ingest and transformations. 
 6. **requirements.txt** text file to install pythons packages dependencys
-7. We also need a **dhw.cfg** file that is not in this repository containing the following variables to reference the s3 buckets and csv path variables 
+7. **DataDictionary.md** Dictionary contains all columns by tables and contraints
+8. We also need a **dhw.cfg** file that is not in this repository containing the following variables to reference the s3 buckets and csv path variables 
 
 ```
 [PATH]
