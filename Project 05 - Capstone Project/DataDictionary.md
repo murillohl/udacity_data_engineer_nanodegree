@@ -119,7 +119,7 @@ After the ETL run's, we will have the two Analytics Table with the following str
 
  **Table players_statistics_per_match** - Partition By create_match_year, create_match_month
  ~~~~
- |-- participants_id: integer (nullable = true)
+ |-- participants_id: integer (nullable = true) - PRIMARY KEY
  |-- matchid: integer (nullable = true)
  |-- player: integer (nullable = true)
  |-- championid: integer (nullable = true)
@@ -201,8 +201,8 @@ After the ETL run's, we will have the two Analytics Table with the following str
  ~~~~
  **Table teams_statistics_per_match** - Partition By create_match_year, create_match_month
  ~~~~
- |-- team_side: string (nullable = true)
- |-- matchid: integer (nullable = true)
+ |-- team_side: string (nullable = true) - COMPOSITE KEY
+ |-- matchid: integer (nullable = true) - COMPOSITE KEY
  |-- win: integer (nullable = true)
  |-- total_kills: long (nullable = true)
  |-- total_deaths: long (nullable = true)
