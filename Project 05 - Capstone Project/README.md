@@ -43,7 +43,7 @@ The stats dataset is a table with real data getting from the Riot API developer 
 This will be our fact table that we are going to use to create our two Analytics Table. 
 
  **Table stats**
-
+~~~~
  |-- id: integer (nullable = true)
  |-- win: integer (nullable = true)
  |-- item1: integer (nullable = true)
@@ -100,16 +100,16 @@ This will be our fact table that we are going to use to create our two Analytics
  |-- wardsplaced: integer (nullable = true)
  |-- wardskilled: integer (nullable = true)
  |-- firstblood: integer (nullable = true)
- 
+ ~~~~
 Then we will have the following dimensions tables (we can get more, but for this project will be using just this ones) for the **Fact Table**.
 
  **Table champs**
- 
+ ~~~~
  |-- name: string (nullable = true)
  |-- id: integer (nullable = true)
- 
+ ~~~~
  **Table participants**
- 
+ ~~~~
  |-- id: integer (nullable = true)
  |-- matchid: integer (nullable = true)
  |-- player: integer (nullable = true)
@@ -118,9 +118,9 @@ Then we will have the following dimensions tables (we can get more, but for this
  |-- ss2: integer (nullable = true)
  |-- role: string (nullable = true)
  |-- position: string (nullable = true)
- 
+ ~~~~
  **Table matches**
- 
+ ~~~~
  |-- id: integer (nullable = true)
  |-- gameid: string (nullable = true)
  |-- platformid: string (nullable = true)
@@ -129,9 +129,9 @@ Then we will have the following dimensions tables (we can get more, but for this
  |-- duration: double (nullable = true)
  |-- creation: double (nullable = true)
  |-- version: string (nullable = true)
- 
+ ~~~~
  **Table teamstats**
- 
+ ~~~~
  |-- matchid: integer (nullable = true)
  |-- teamid: integer (nullable = true)
  |-- firstblood: integer (nullable = true)
@@ -145,18 +145,18 @@ Then we will have the following dimensions tables (we can get more, but for this
  |-- baronkills: integer (nullable = true)
  |-- dragonkills: integer (nullable = true)
  |-- harrykills: integer (nullable = true)
- 
+ ~~~~
  **Table queues**
- 
+ ~~~~
  |-- description: string (nullable = true)
  |-- map: string (nullable = true)
  |-- notes: string (nullable = true)
  |-- queueId: integer (nullable = true)
-
+~~~~
 After the ETL run's, we will have the two Analytics Table with the following structure:
 
  **Table players_statistics_per_match** - Partition By create_match_year, create_match_month
- 
+ ~~~~
  |-- participants_id: integer (nullable = true)
  |-- matchid: integer (nullable = true)
  |-- player: integer (nullable = true)
@@ -236,9 +236,9 @@ After the ETL run's, we will have the two Analytics Table with the following str
  |-- create_match_day: integer (nullable = true)
  |-- create_match_month: integer (nullable = true)
  |-- create_match_year: integer (nullable = true)
- 
+ ~~~~
  **Table teams_statistics_per_match** - Partition By create_match_year, create_match_month
- 
+ ~~~~
  |-- team_side: string (nullable = true)
  |-- matchid: integer (nullable = true)
  |-- win: integer (nullable = true)
@@ -299,7 +299,7 @@ After the ETL run's, we will have the two Analytics Table with the following str
  |-- create_match_day: integer (nullable = true)
  |-- create_match_month: integer (nullable = true)
  |-- create_match_year: integer (nullable = true)
-
+~~~~
 ## Tools 
 
 * We first used Pandas and Requests to get JSON data from Riot API and store as csv.
