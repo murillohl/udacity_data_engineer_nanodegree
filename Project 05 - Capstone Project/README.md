@@ -48,6 +48,29 @@ After the ETL run's, we will have the two Analytics Table with the following str
 
 The first is the players_statistics_per_match in the picture, and the second is using the same Schema but with some aggregation methods to gather info about the role team and get some insights in Team Side level, like win rate of Blue Side, firstblood rate of Red Side.
 
+#### Sample of queries in result Data:
+
+Query example in players_statistics_per_match result table: Analise of the vision score about players based on wards/pinkwards placed, killed and bought and if they win or not the game in a given Season:
+```
+SELECT players.participants_id, s.season, players.matchid, players.win, players.wardsplaced, players.wardsbought, players.pinksbought, players.wardskilled, players.visionscore,   players.name, players.duration
+FROM players_statistics_per_match as players
+JOIN seasons as s
+ON players.seasonid = s.id
+WHERE s.season = 'SEASON 2016'
+```
+![image](https://user-images.githubusercontent.com/21292638/132350832-491cef5d-17fa-432d-a76a-8b45c5029f22.png)
+
+Query example: Analise of wich side of the map(blue or red) got more firsts dragons in a season
+```
+SELECT teams.team_side, s.season, count(firstdragon)
+FROM teams_statistics_per_match as teams
+JOIN seasons as s
+ON teams.seasonid = s.id
+WHERE s.season = 'SEASON 2016'
+GROUP BY teams.firstdragon
+```
+![image](https://user-images.githubusercontent.com/21292638/132353960-4667751d-eb5a-4c20-a407-33a4e99aebbc.png)
+
 The full *Data Dictionary* is in the DataDictionary.md file
 
 ## Tools 
